@@ -1,0 +1,26 @@
+name: Update DockerHub Description
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - README.md
+  workflow_dispatch:
+
+jobs:
+  update-description:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'push' || !contains(github.event.head_commit.message, '[ci skip]') }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Docker Hub Description
+        uses: peter-evans/dockerhub-description@v2
+        with:
+          username: ${{ secrets.DOCKER_LOGIN }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: wildwildangel/radamsa
+          short-description: Docker image for radamsa, a general purpose fuzzer
