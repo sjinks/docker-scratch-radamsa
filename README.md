@@ -1,4 +1,4 @@
-# docker-scratych-radamsa
+# docker-scratch-radamsa
 
 Docker image for [radamsa](https://gitlab.com/akihe/radamsa/), a general purpose fuzzer.
 
