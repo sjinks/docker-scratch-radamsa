@@ -43,27 +43,42 @@ jobs:
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
+      - name: Determine security scan parameters
+        id: scanparams
+        run: |
+          if [ "${{ github.event.sender.login }}" != "dependabot[bot]" ]; then
+            echo ::set-output name=format::template
+            echo ::set-output name=template::@/contrib/sarif.tpl
+            echo ::set-output name=output::trivy-results.sarif
+          else
+            echo ::set-output name=format::table
+            echo ::set-output name=template::
+            echo ::set-output name=output::
+          fi
+
       - name: Security Scan
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: "wildwildangel/radamsa:${{ github.sha }}"
-          format: template
-          template: "@/contrib/sarif.tpl"
-          output: trivy-results.sarif
+          format: ${{ steps.scanparams.outputs.format }}
+          template: ${{ steps.scanparams.outputs.template }}
+          output: ${{ steps.scanparams.outputs.output }}
 
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v1
         with:
           sarif_file: trivy-results.sarif
+        if: steps.scanparams.outputs.output != ''
 
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKER_LOGIN }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+        if: steps.scanparams.outputs.output != ''
 
       - name: Push the image
         run: |
           docker push "wildwildangel/radamsa:${{ github.sha }}"
           docker push "wildwildangel/radamsa:latest"
-        if: ${{ github.event_name != 'push' || github.ref == 'refs/heads/master' }}
+        if: (github.event_name != 'push' || github.ref == 'refs/heads/master') && steps.scanparams.outputs.output != ''
