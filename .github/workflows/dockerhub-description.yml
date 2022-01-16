@@ -10,6 +10,8 @@ on:
 
 jobs:
   update-description:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     if: ${{ github.event_name != 'push' || !contains(github.event.head_commit.message, '[ci skip]') }}
 
