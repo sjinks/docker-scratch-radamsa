@@ -1,4 +1,4 @@
-FROM debian:stable-slim@sha256:46319ede638871d01264e356b55723f28c2769674966475240ca9c0cbd7f9cfb AS build
+FROM debian:stable-slim@sha256:f3f1c0c8558785f0f22ba60cfb3e7156f3dac3b7cb0474dfb97ca6b35ca86e32 AS build
 
 WORKDIR /build
 RUN apt-get -qq update && apt-get -y --no-install-recommends install gcc libc6-dev wget ca-certificates
